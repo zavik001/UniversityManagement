@@ -1,0 +1,5 @@
+John; Michael; Smith; 15 Mar 1980; Mathematics; 10; Professor
+Sarah; Jessica; Johnson; 22 Nov 1985; Physics; 5; Lecturer
+Michael; Andrew; Brown; 5 Jan 1978; Chemistry; 8; Professor
+Emily; Elizabeth; Davis; 9 Aug 1972; Biology; 12; Assistant
+David; Thomas; Wilson; 12 Jul 1969; Computer Science; 7; Dean

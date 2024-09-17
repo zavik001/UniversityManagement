@@ -1,0 +1,5 @@
+Ivan; Ivanovich; Ivanov; 1 Sep 2000; 1; A1; 4,5
+Maria; Petrovna; Petrova; 15 Oct 1999; 2; B2; 4,8
+Alexey; Sergeevich; Sidorov; 23 Dec 2001; 3; C3; 3,9
+Elena; Alexandrovna; Alexeeva; 7 Jun 2000; 1; D4; 4,6
+Dmitry; Viktorovich; Viktorov; 30 Apr 1998; 4; E5; 4,7
