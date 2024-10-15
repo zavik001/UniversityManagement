@@ -1,181 +1,278 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-
-class Program
+﻿class Program
 {
     static void Main(string[] args)
     {
-        University university = new University();
+        IUniversity university = new University();
         bool exit = false;
 
         while (!exit)
         {
-            Console.WriteLine("\nMenu:");
-            Console.WriteLine("1. Load students and teachers from files");
-            Console.WriteLine("2. Show all students");
-            Console.WriteLine("3. Show all teachers");
-            Console.WriteLine("4. Find person by last name");
-            Console.WriteLine("5. Find teachers by department and sort");
-            Console.WriteLine("0. Exit");
+            Console.WriteLine("\nМеню:");
+            Console.WriteLine("1. Загрузить студентов и преподавателей из файлов");
+            Console.WriteLine("2. Показать всех студентов");
+            Console.WriteLine("3. Добавить студента");
+            Console.WriteLine("4. Удалить студента");
+            Console.WriteLine("5. Показать всех преподавателей");
+            Console.WriteLine("6. Добавить преподавателя");
+            Console.WriteLine("7. Удалить преподавателя");
+            Console.WriteLine("8. Найти по фамилии");
+            Console.WriteLine("9. Выдать всех студентов, чей средний балл выше заданного. Отсортировать их по среднему баллу");
+            Console.WriteLine("0. Выход");
 
-            Console.Write("\nChoose an option: ");
+            Console.Write("\nВыберите опцию: ");
             string choice = Console.ReadLine() ?? string.Empty;
 
             switch (choice)
             {
                 case "1":
-                    // Load students and teachers
                     LoadData(university);
                     break;
                 case "2":
-                    // Show all students
                     ShowStudents(university);
                     break;
                 case "3":
-                    // Show all teachers
-                    ShowTeachers(university);
+                    AddStudent(university);
                     break;
                 case "4":
-                    // Find by last name
-                    FindByLastName(university);
+                    DeleteStudent(university);
                     break;
                 case "5":
-                    // Find teachers by department
-                    FindTeachersByDepartment(university);
+                    ShowTeachers(university);
+                    break;
+                case "6":
+                    AddTeacher(university);
+                    break;
+                case "7":
+                    DeleteTeacher(university);
+                    break;
+                case "8":
+                    FindByLastName(university);
+                    break;
+                case "9":
+                    FindByAvrPoint(university);
                     break;
                 case "0":
                     exit = true;
                     break;
                 default:
-                    Console.WriteLine("Invalid choice, please try again.");
+                    Console.WriteLine("Неправильный выбор, попробуйте еще раз.");
                     break;
             }
         }
     }
 
-    static void LoadData(University university)
+    // Метод загрузки данных студентов и преподавателей из файлов
+    static void LoadData(IUniversity university)
     {
         string studentFilePath = "data/students.txt";
         string teacherFilePath = "data/teachers.txt";
 
+        // Загрузка студентов
         if (File.Exists(studentFilePath))
         {
-            // Load students
             foreach (var line in File.ReadLines(studentFilePath))
             {
                 try
                 {
-                    var student = Student.CreateFromString(line);
-                    university.Add(student);
+                    var student = Student.CreateFromString(line);  // Парсинг строки в объект студента
+                    university.Add(student);  // Добавление студента в университет
                 }
-                catch (FormatException e)
+                catch (Exception e)
                 {
-                    Console.WriteLine($"Error parsing student line: {e.Message}");
+                    Console.WriteLine($"Ошибка при разборе строки студента: {e.Message}");
                 }
             }
         }
         else
         {
-            Console.WriteLine($"Student file '{studentFilePath}' not found.");
+            Console.WriteLine($"Файл студентов '{studentFilePath}' не найден.");
         }
 
+        // Загрузка преподавателей
         if (File.Exists(teacherFilePath))
         {
-            // Load teachers
             foreach (var line in File.ReadLines(teacherFilePath))
             {
                 try
                 {
-                    var teacher = Teacher.CreateFromString(line);
-                    university.Add(teacher);
+                    var teacher = Teacher.CreateFromString(line);  // Парсинг строки в объект преподавателя
+                    university.Add(teacher);  // Добавление преподавателя в университет
                 }
-                catch (FormatException e)
+                catch (Exception e)
                 {
-                    Console.WriteLine($"Error parsing teacher line: {e.Message}");
+                    Console.WriteLine($"Ошибка при разборе строки преподавателя: {e.Message}");
                 }
             }
         }
         else
         {
-            Console.WriteLine($"Teacher file '{teacherFilePath}' not found.");
+            Console.WriteLine($"Файл преподавателей '{teacherFilePath}' не найден.");
         }
 
-        Console.WriteLine("Data loaded.");
+        Console.WriteLine("Данные загружены.");
     }
 
-    static void ShowStudents(University university)
+    // Метод для показа всех студентов
+    static void ShowStudents(IUniversity university)
     {
-        var students = university.Students.ToList();
-        if (students.Any())
+        Console.WriteLine("\nСтуденты:");
+        foreach (var student in university.Students)
         {
-            foreach (var student in students)
+            Console.WriteLine(student);  // Печать каждого студента
+        }
+    }
+
+    // Метод для добавления нового студента
+    static void AddStudent(IUniversity university)
+    {
+        Console.Write("\nВведите данные студента (например: Иван; Иванович; Иванов; 1 Сен 2000; 1; A1; 4,5): ");
+        string data = Console.ReadLine();
+        try
+        {
+            var student = Student.CreateFromString(data);  // Парсинг строки в объект студента
+            university.Add(student);  // Добавление студента в университет
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Ошибка при добавлении студента: {e.Message}");
+        }
+    }
+
+    static void DeleteStudent(IUniversity university)
+    {
+        Console.Write("\nВведите фамилию студента для удаления: ");
+        string lastName = Console.ReadLine();
+        var students = university.FindByLastName(lastName).OfType<Student>().ToList();  // Поиск студентов по фамилии
+
+        if (students.Count > 0)
+        {
+            Console.WriteLine("Найдены следующие студенты:");
+            for (int i = 0; i < students.Count; i++)
             {
-                Console.WriteLine(student);
+                Console.WriteLine($"{i + 1}. " + students[i].ToString());
+            }
+
+            Console.Write("Введите номер студента для удаления: ");
+            if (int.TryParse(Console.ReadLine(), out int index) && index > 0 && index <= students.Count)
+            {
+                university.Remove(students[index - 1]);
+                Console.WriteLine("Студент успешно удалён.");
+            }
+            else
+            {
+                Console.WriteLine("Некорректный номер.");
             }
         }
         else
         {
-            Console.WriteLine("No students found.");
+            Console.WriteLine("Студенты с такой фамилией не найдены.");
         }
     }
 
-    static void ShowTeachers(University university)
+
+    // Метод для показа всех преподавателей
+    static void ShowTeachers(IUniversity university)
     {
-        var teachers = university.Teachers.ToList();
-        if (teachers.Any())
+        Console.WriteLine("\nПреподаватели:");
+        foreach (var teacher in university.Teachers)
         {
-            foreach (var teacher in teachers)
+            Console.WriteLine(teacher);  // Печать каждого преподавателя
+        }
+    }
+
+    // Метод для добавления нового преподавателя
+    static void AddTeacher(IUniversity university)
+    {
+        Console.Write("\nВведите данные преподавателя (например: Джон; Майкл; Смит; 15 Мар 1980; Математика; 10; Профессор): ");
+        string data = Console.ReadLine();
+        try
+        {
+            var teacher = Teacher.CreateFromString(data);  // Парсинг строки в объект преподавателя
+            university.Add(teacher);  // Добавление преподавателя в университет
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Ошибка при добавлении преподавателя: {e.Message}");
+        }
+    }
+
+    // Метод для удаления преподавателя по фамилии
+    static void DeleteTeacher(IUniversity university)
+    {
+        Console.Write("\nВведите фамилию преподавателя для удаления: ");
+        string lastName = Console.ReadLine();
+        var teachers = university.FindByLastName(lastName).OfType<Teacher>().ToList();
+
+        if (teachers.Count > 0)
+        {
+            Console.WriteLine("Найдены следующие преподаватели:");
+            for (int i = 0; i < teachers.Count; i++)
             {
-                Console.WriteLine(teacher);
+                Console.WriteLine($"{i + 1}. " + teachers[i].ToString());
+            }
+
+            Console.Write("Введите номер преподавателя для удаления: ");
+            if (int.TryParse(Console.ReadLine(), out int index) && index > 0 && index <= teachers.Count)
+            {
+                university.Remove(teachers[index - 1]);
+                Console.WriteLine("Преподаватель успешно удалён.");
+            }
+            else
+            {
+                Console.WriteLine("Некорректный номер.");
             }
         }
         else
         {
-            Console.WriteLine("No teachers found.");
+            Console.WriteLine("Преподаватели с такой фамилией не найдены.");
         }
     }
 
-    static void FindByLastName(University university)
+
+    // Метод для поиска людей по фамилии
+    static void FindByLastName(IUniversity university)
     {
-        Console.Write("Enter last name: ");
-        string lastName = Console.ReadLine() ?? string.Empty;
-        var persons = university.FindByLastName(lastName).ToList();
+        Console.Write("\nВведите фамилию для поиска: ");
+        string lastName = Console.ReadLine();
+        var persons = university.FindByLastName(lastName);  // Поиск по фамилии
 
         if (persons.Any())
         {
             foreach (var person in persons)
             {
-                Console.WriteLine(person);
+                Console.WriteLine(person);  // Печать найденных людей
             }
         }
         else
         {
-            Console.WriteLine("No person found with the given last name.");
+            Console.WriteLine("Персоны с такой фамилией не найдены.");
         }
     }
 
-    static void FindTeachersByDepartment(University university)
+
+    static void FindByAvrPoint(IUniversity university)
     {
-        Console.Write("Enter text to search by department: ");
-        string departmentText = Console.ReadLine() ?? string.Empty;
+        Console.Write("Введите средний балл: ");
 
-        var teachers = university.FindByDepartment(departmentText)
-                                 .OrderBy(t => t.JobPosition)
-                                 .ToList();
-
-        if (teachers.Any())
+        // Читаем строку и пытаемся преобразовать в float
+        if (float.TryParse(Console.ReadLine(), out float averageScore))
         {
-            foreach (var teacher in teachers)
+            var students = university.FindByAvrPoint(averageScore);
+            if (students.Any())
             {
-                Console.WriteLine(teacher);
+                foreach (var student in students)
+                {
+                    Console.WriteLine(student);
+                }
+            }
+            else
+            {
+                Console.WriteLine("Студенты с указанным средним баллом не найдены.");
             }
         }
         else
         {
-            Console.WriteLine("No teachers found in the given department.");
+            Console.WriteLine("Некорректный ввод среднего балла.");
         }
     }
-
 }

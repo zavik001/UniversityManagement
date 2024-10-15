@@ -1,25 +1,33 @@
+using System.Globalization;
+
 public class Student : IPerson
 {
     // Реализация свойств из интерфейса IPerson
-    public string Name { get; private set; }
-    public string Patronomic { get; private set; }
-    public string Lastname { get; private set; }
-    public DateTime Date { get; private set; }
-    public int Age
-    {
-        get
-        {
-            var today = DateTime.Today;
-            var age = today.Year - Date.Year;
-            if (Date > today.AddYears(-age)) age--;
-            return age;
-        }
-    }
+    public string Name { get; }
+    public string Patronomic { get; }
+    public string Lastname { get; }
+    public DateTime Date { get; }
+
+    public int Age => CalculateAge(Date);
 
     // Дополнительные свойства для класса Student
-    public int Course { get; private set; }
-    public string Group { get; private set; }
-    public float AverageScore { get; private set; }
+    public int Course { get; }
+    public string Group { get; }
+    public float AverageScore { get; }
+
+    // Статическая функция вычисления возраста
+    public static int CalculateAge(DateTime birthDate)
+    {
+        var today = DateTime.Today;
+        int age = today.Year - birthDate.Year;
+
+        if (today.DayOfYear < birthDate.DayOfYear)
+        {
+            age--;
+        }
+
+        return age;
+    }
 
     // Конструктор, принимающий значения всех свойств
     public Student(string name, string patronomic, string lastname, DateTime date, int course, string group, float averageScore)
@@ -36,15 +44,15 @@ public class Student : IPerson
     // Статическая функция создания студента из строки
     public static Student CreateFromString(string data)
     {
-        var parts = data.Split(';');
+        var parts = data.Split(';').Select(p => p.Trim()).ToArray();
 
-        var name = parts[0].Trim();
-        var patronomic = parts[1].Trim();
-        var lastname = parts[2].Trim();
-        var date = DateTime.Parse(parts[3].Trim());
-        int course = int.Parse(parts[4].Trim());
-        var group = parts[5].Trim();
-        float averageScore = float.Parse(parts[6].Trim());
+        var name = parts[0];
+        var patronomic = parts[1];
+        var lastname = parts[2];
+        var date = DateTime.Parse(parts[3]);
+        int course = int.Parse(parts[4]);
+        var group = parts[5];
+        float averageScore = float.Parse(parts[6]);
 
         return new Student(name, patronomic, lastname, date, course, group, averageScore);
     }
@@ -52,6 +60,6 @@ public class Student : IPerson
     // Переопределение функции ToString
     public override string ToString()
     {
-        return $"{Lastname} {Name} {Patronomic}, Date of Birth: {Date:dd MMM yyyy}, Age: {Age}, Course: {Course}, Group: {Group}, Average Score: {AverageScore:F2}";
+        return $"{Lastname} {Name} {Patronomic}, Дата рождения: {Date:dd MMM yyyy}, Возраст: {Age}, Курс: {Course}, Группа: {Group}, Средний балл: {AverageScore:F2}";
     }
 }

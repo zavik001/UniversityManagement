@@ -1,4 +1,4 @@
-interface IUniversity
+public interface IUniversity
 {
     IEnumerable<IPerson> Persons { get; }
     IEnumerable<Student> Students { get; }
@@ -6,5 +6,5 @@ interface IUniversity
     void Add(IPerson person);
     void Remove(IPerson person);
     IEnumerable<IPerson> FindByLastName(string lastName);
-    IEnumerable<Teacher> FindByDepartment(string text);
+    IEnumerable<Student> FindByAvrPoint(float avrPoint);
 }

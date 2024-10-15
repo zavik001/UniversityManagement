@@ -3,5 +3,6 @@ public enum Position
     Assistant,
     Lecturer,
     Professor,
-    Dean,
+    Teacher,
+    Associate_Professor,
 }
